@@ -1,0 +1,34 @@
+@startuml
+class Task {
+  +title: str
+  +deadline: str
+  +done: bool
+  +mark_done()
+  +__str__(): str
+}
+
+class TaskManager {
+  -tasks: list
+  +add_task(task: Task)
+  +remove_task(title: str)
+  +get_all(): list
+  +find_by_title(title: str): Task
+}
+
+class TaskStorage {
+  -filename: str
+  +load(): list
+  +save(tasks: list)
+}
+
+class ConsoleUI {
+  -manager: TaskManager
+  +run()
+  +print_menu()
+  +print_tasks()
+}
+
+ConsoleUI --> TaskManager : ассоциация
+TaskManager o-- Task : агрегация
+TaskManager ..> TaskStorage : зависимость
+@enduml

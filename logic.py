@@ -4,13 +4,13 @@ class Task:
         self.deadline = deadline
         self.done = done
 
-    def to_dict(self):
-        return {"title": self.title, "deadline": self.deadline, "done": self.done}
 
-    @staticmethod
-    def from_dict(d):
-        return Task(d["title"], d["deadline"], d.get("done", False))
+    def mark_done(self):
+        self.done = True
 
+    def __str__(self) -> str:
+        status = "выполнено" if self.done else "не выполнено"
+        return f"{self.title} (до {self.deadline}) — {status}"
 
 class TaskManager:
     def __init__(self, storage):
