@@ -1,19 +1,30 @@
 import json
-import os
-
-FILE = "tasks.txt"
+from logic import Task
 
 
-def load():
-    if not os.path.exists(FILE):
-        return []
-    with open(FILE, "r", encoding="utf-8") as f:
+class Storage:
+    """Отвечает за чтение и запись списка дел в файл."""
+
+    def __init__(self, path="tasks.json"):
+        self.path = path
+
+    def save(self, tasks):
+        data = [task.to_dict() for task in tasks]
+
+        with open(self.path, "w", encoding="utf-8") as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
+
+    def load(self):
         try:
-            return json.load(f)
-        except json.JSONDecodeError:
+            with open(self.path, "r", encoding="utf-8") as f:
+                data = json.load(f)
+
+        except FileNotFoundError:
             return []
 
+        if not isinstance(data, list):
+            raise ValueError(
+                "Хранилище повреждено: ожидается список дел"
+            )
 
-def save(data):
-    with open(FILE, "w", encoding="utf-8") as f:
-        json.dump(data, f, ensure_ascii=False, indent=2)
+        return [Task.from_dict(item) for item in data]

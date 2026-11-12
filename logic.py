@@ -1,3 +1,4 @@
+
 class Task:
     """Дело в списке дел."""
 
@@ -35,9 +36,17 @@ class Task:
 class TaskManager:
     """Управляет списком дел."""
 
-    def __init__(self, storage):
+    def __init__(self, storage=None):
         self.storage = storage
-        self.tasks = [Task.from_dict(d) for d in storage.load()]
+        self.tasks = []
+
+    def load(self):
+        if self.storage is not None:
+            self.tasks = self.storage.load()
+
+    def save(self):
+        if self.storage is not None:
+            self.storage.save(self.get_all())
 
     def add(self, title, deadline):
         self.add_task(title, deadline)
@@ -45,7 +54,6 @@ class TaskManager:
     def add_task(self, title: str, deadline: str) -> Task:
         task = Task(title, deadline)
         self.tasks.append(task)
-        self._save()
         return task
 
     def list_all(self):
@@ -54,18 +62,15 @@ class TaskManager:
     def mark_done(self, index):
         if 0 <= index < len(self.tasks):
             self.tasks[index].mark_done()
-            self._save()
 
     def delete(self, index):
         if 0 <= index < len(self.tasks):
             del self.tasks[index]
-            self._save()
 
     def remove_task(self, title: str) -> None:
         for task in self.tasks:
             if task.title == title:
                 self.tasks.remove(task)
-                self._save()
                 return
         raise ValueError(f"Дело «{title}» не найдено")
 
@@ -73,18 +78,17 @@ class TaskManager:
         for task in self.tasks:
             if task.title == title:
                 task.mark_done()
-                self._save()
                 return
         raise ValueError(f"Дело «{title}» не найдено")
 
-    def get_all(self) -> list[Task]:
+    def get_all(self) -> list:
         return list(self.tasks)
 
-    def get_pending(self) -> list[Task]:
+    def get_pending(self) -> list:
         return [task for task in self.tasks if not task.done]
 
     def count(self) -> int:
         return len(self.tasks)
 
-    def _save(self):
-        self.storage.save([t.to_dict() for t in self.tasks])
+    def get_sorted_by_deadline(self) -> list:
+        return sorted(self.tasks, key=lambda task: task.deadline)
